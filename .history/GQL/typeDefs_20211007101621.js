@@ -47,6 +47,7 @@ const typeDefs = gql`
       genres: [String!]!
     ): Book
     editAuthor(name: String!, born: Int!): Author
+    addFavoriteGenre(genre: String!): User
   }
 `;
 

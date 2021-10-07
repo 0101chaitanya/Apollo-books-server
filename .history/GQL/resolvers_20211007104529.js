@@ -28,12 +28,8 @@ const resolvers = {
 
       return Author.count({});
     },
-    allBooks: async (parent, args, { currentUser, dataSources }) => {
+    allBooks: async (parent, args, { dataSources }) => {
       let { Book, Author } = dataSources;
-
-      if (!currentUser) {
-        throw new AuthenticationError('not authenticated');
-      }
 
       if (!args.authorName && !args.genre) {
         return await Book.find({});

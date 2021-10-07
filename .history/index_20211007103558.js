@@ -15,7 +15,9 @@ const server = new ApolloServer({
   introspection: true,
   context: async ({ req }) => {
     const auth = req ? req.headers.authorization : null;
+    await AsyncStorage.removeItem('token');
 
+    console.log('auth', auth);
     if (auth && auth.toLowerCase().startsWith('bearer ')) {
       const decodedToken = jwt.verify(
         auth.substring(7),

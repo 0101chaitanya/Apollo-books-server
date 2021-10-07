@@ -1,14 +1,9 @@
 const { v4: uuidv4 } = require('uuid');
 const mongoId = require('apollo-server-mongo-id-scalar');
-const { UserInputError, AuthenticationError } = require('apollo-server-errors');
+const { UserInputError } = require('apollo-server-errors');
 const jwt = require('jsonwebtoken');
 const resolvers = {
   Query: {
-    me: async (parent, args, { dataSources, currentUser }) => {
-      let { Book, Author } = dataSources;
-
-      return currentUser;
-    },
     book: async (parent, args, { dataSources }) => {
       let { Book, Author } = dataSources;
 
@@ -28,12 +23,8 @@ const resolvers = {
 
       return Author.count({});
     },
-    allBooks: async (parent, args, { currentUser, dataSources }) => {
+    allBooks: async (parent, args, { dataSources }) => {
       let { Book, Author } = dataSources;
-
-      if (!currentUser) {
-        throw new AuthenticationError('not authenticated');
-      }
 
       if (!args.authorName && !args.genre) {
         return await Book.find({});
@@ -83,11 +74,8 @@ const resolvers = {
   Mutation: {
     createUser: async (parent, args, { dataSources }) => {
       let { Book, Author, User } = dataSources;
-      console.log(User);
-      const user = new User({
-        username: args.username,
-        favoriteGenre: args.favoriteGenre,
-      });
+
+      const user = new User({ username: args.username });
       try {
         return await user.save();
       } catch (error) {
@@ -96,12 +84,10 @@ const resolvers = {
         });
       }
     },
-    login: async (parent, args, { dataSources }) => {
-      let { Book, Author, User } = dataSources;
-
+    login: async (root, args) => {
       const user = await User.findOne({ username: args.username });
 
-      if (!user || args.password !== process.env.SECRET) {
+      if (!user || args.password !== 'secret') {
         throw new UserInputError('wrong credentials');
       }
 
@@ -110,14 +96,10 @@ const resolvers = {
         id: user._id,
       };
 
-      return { value: jwt.sign(userForToken, process.env.JWT_SECRET) };
+      return { value: jwt.sign(userForToken, JWT_SECRET) };
     },
-    editAuthor: async (parent, args, { currentUser, dataSources }) => {
+    editAuthor: async (parent, args, { dataSources }) => {
       let { Book, Author } = dataSources;
-      if (!currentUser) {
-        throw new AuthenticationError('not authenticated');
-      }
-
       try {
         return await Author.findOneAndUpdate(
           { name: args.name },
@@ -133,12 +115,9 @@ const resolvers = {
       }
     },
 
-    addBook: async (parent, args, { currentUser, dataSources }) => {
+    addBook: async (parent, args, { dataSources }) => {
       let { Book, Author } = dataSources;
 
-      if (!currentUser) {
-        throw new AuthenticationError('not authenticated');
-      }
       try {
         let found = await Author.findOne({ name: args.author });
 
