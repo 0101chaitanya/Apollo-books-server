@@ -11,11 +11,7 @@ const resolvers = {
       let genre = [];
 
       Books.forEach((book) => {
-        book.genres.forEach((item) => {
-          if (!genre.includes(item)) {
-            genre = [...genre, item];
-          }
-        });
+        genre = [...genre, ...book.genres];
       });
       return genre;
     },
@@ -50,8 +46,7 @@ const resolvers = {
       /* if (!currentUser) {
         throw new AuthenticationError('not authenticated');
       }
- */ console.log(args);
-
+ */
       if (!args.authorName && !args.genre) {
         return await Book.find({});
       }
@@ -61,20 +56,8 @@ const resolvers = {
 
         return await Book.find({ author: author.id });
       }
-
       if (!args.author) {
-        console.log('hi');
-        const genre = args.genre;
-        let fou = await Book.find({}); //.lean()
-
-        // /console.log(fou);
-        let res = fou.filter((item) => item.genres.some((p) => p === genre));
-        /* filter((item) => {
-            console.log(item, genre, item.some(item === genre));
-            return true;
-          }); */
-        console.log(res);
-        return res;
+        return await Book.find({ genre: args.genre });
       }
 
       const author = await Author.find({ name: args.author });
@@ -93,6 +76,7 @@ const resolvers = {
   Book: {
     author: async (parent, args, { dataSources }) => {
       let { Book, Author } = dataSources;
+
       let author = await Author.findById(parent.author.toString());
       return author.id;
     },

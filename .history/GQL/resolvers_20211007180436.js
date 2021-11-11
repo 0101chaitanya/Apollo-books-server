@@ -65,10 +65,10 @@ const resolvers = {
       if (!args.author) {
         console.log('hi');
         const genre = args.genre;
-        let fou = await Book.find({}); //.lean()
+        let fou = await Book.find({});
 
         // /console.log(fou);
-        let res = fou.filter((item) => item.genres.some((p) => p === genre));
+        let res = fou.map((item) => item.genres);
         /* filter((item) => {
             console.log(item, genre, item.some(item === genre));
             return true;

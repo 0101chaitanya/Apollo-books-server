@@ -64,17 +64,9 @@ const resolvers = {
 
       if (!args.author) {
         console.log('hi');
-        const genre = args.genre;
-        let fou = await Book.find({}); //.lean()
-
-        // /console.log(fou);
-        let res = fou.filter((item) => item.genres.some((p) => p === genre));
-        /* filter((item) => {
-            console.log(item, genre, item.some(item === genre));
-            return true;
-          }); */
-        console.log(res);
-        return res;
+        const fou = await Book.find({ genre: { $contains: args.genre } });
+        console.log(fou);
+        return fou;
       }
 
       const author = await Author.find({ name: args.author });

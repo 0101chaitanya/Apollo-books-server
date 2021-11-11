@@ -25,7 +25,7 @@ const typeDefs = gql`
     author: MONGOID!
     id: ID!
     genres: [String!]!
-    authorDetails: Author!
+    authorDetails: [Author]!
   }
 
   type Query {
@@ -35,7 +35,6 @@ const typeDefs = gql`
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author]!
     book(name: String!): Book
-    allGenre: [String!]!
   }
 
   type Mutation {
